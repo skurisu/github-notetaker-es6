@@ -24431,7 +24431,7 @@
 	  handleSubmit: function handleSubmit() {
 	    var username = this.usernameRef.value;
 	    this.usernameRef.value = "";
-	    this.history.pushState(null, "profile/" + username); // takes user to this particular route
+	    this.history.pushState(null, "/profile/" + username); // takes user to this particular route
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -24511,18 +24511,25 @@
 	  },
 	  componentDidMount: function componentDidMount() {
 	    this.ref = new Firebase('https://githubnotes-react.firebaseio.com/');
-	    var childRef = this.ref.child(this.props.params.username);
+	    this.init(this.props.params.username);
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.unbind('notes');
+	    this.init(nextProps.params.username);
+	  },
+	  componentWillUnmount: function componentWillUnmount() {
+	    this.unbind('notes');
+	  },
+	  init: function init(username) {
+	    var childRef = this.ref.child(username);
 	    this.bindAsArray(childRef, 'notes');
 
-	    helpers.getGithubInfo(this.props.params.username).then(function (data) {
+	    helpers.getGithubInfo(username).then(function (data) {
 	      this.setState({
 	        bio: data.bio,
 	        repos: data.repos
 	      });
 	    }.bind(this));
-	  },
-	  componentWillUnmount: function componentWillUnmount() {
-	    this.unbind('notes');
 	  },
 	  handleAddNote: function handleAddNote(newNote) {
 	    // update firebase with new note. Append new note
